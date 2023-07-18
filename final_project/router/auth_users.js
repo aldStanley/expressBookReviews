@@ -52,8 +52,57 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  const username = req.session.authorization.username;
+
+  if (!isbn || !review || !username) {
+    return res.status(400).send("Invalid request");
+  }
+
+  let targetBook = books[isbn];
+  if (!targetBook) {
+    return res.status(404).send("Book not found");
+  }
+
+  const userReviews = targetBook.reviews.filter((r) => r.username === username);
+
+  if (userReviews.length > 0) {
+    userReviews[0].review = review;
+    return res.send("Review modified successfully");
+  }
+
+  const newReview = {
+    "username":username,
+    "review":review,
+  };
+  targetBook.reviews.push(newReview);
+  return res.send("Review added successfully");
 });
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;
+  
+    if (!isbn || !username) {
+      return res.status(400).send("Invalid request"); 
+    }
+  
+    let targetBook = books[isbn];
+    if (!targetBook) {
+      return res.status(404).send("Book not found"); 
+    }
+  
+    const initialReviewsCount = targetBook.reviews.length;
+  
+    targetBook.reviews = targetBook.reviews.filter((review) => review.username !== username);
+  
+    if (targetBook.reviews.length < initialReviewsCount) {
+      return res.send("Review deleted successfully");
+    }
+  
+    return res.status(404).send("Review not found"); 
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;

@@ -19,7 +19,7 @@ public_users.get('/',function (req, res) {
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   let isbn = req.params.isbn;
-  result = books[isbn-1];
+  result = books[isbn];
   res.send(JSON.stringify({result},null,4))
 });
   
@@ -27,22 +27,28 @@ public_users.get('/isbn/:isbn',function (req, res) {
 public_users.get('/author/:author',function (req, res) {
   //Write your code here
   let authorName = req.params.author;
-  let filteredBook = Object.values(books).filter((book)=>book.author.includes(authorName));
-  res.send(JSON.stringify({filteredBook},null,4))
+  let filteredBook = Object.values(books).filter(book=>book.author.includes(authorName));
+  if(filteredBook){
+    res.send(JSON.stringify({filteredBook},null,4))
+  }
+  res.status(404).send("Books not found")
+  
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
   //Write your code here
   let title = req.params.title;
-  let filteredBook = Object.values(books).filter((book)=>book.title === title);
+  let filteredBook = Object.values(books).filter(book=>book.title === title);
   res.send(JSON.stringify({filteredBook},null,4))
 });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  let isbn = req.params.isbn;
+  result = books[isbn].review;
+  res.send(JSON.stringify({result},null,4))
 });
 
 module.exports.general = public_users;

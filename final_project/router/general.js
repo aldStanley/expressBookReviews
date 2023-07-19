@@ -1,3 +1,4 @@
+const axios = require('axios');
 const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
@@ -30,14 +31,31 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   //Write your code here
-  res.send(JSON.stringify({books},null,4))});
+  return new Promise((resolve,reject)=>{
+      if(books){
+          res.send(JSON.stringify({books},null,4))
+          resolve("Books sent!").then((message)=>{console.log("Action completed,"+message)})
+      }
+      else{
+          reject("There is no books :(").then((message)=>{console.log("Action failed, "+message)})
+      }
+  })
+});
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   let isbn = req.params.isbn;
-  result = books[isbn];
-  res.send(JSON.stringify({result},null,4))
+  let result = books[isbn];
+  return new Promise((resolve,reject)=>{
+    if(result){
+        res.send(JSON.stringify({result},null,4))
+        resolve("Book sent!").then((message)=>{console.log("Action completed,"+message)})
+    }
+    else{
+        reject("The book you want is not here :(").then((message)=>{console.log("Action failed, "+message)})
+    }
+    })
 });
   
 // Get book details based on author
@@ -45,10 +63,15 @@ public_users.get('/author/:author',function (req, res) {
   //Write your code here
   let authorName = req.params.author;
   let filteredBook = Object.values(books).filter(book=>book.author.includes(authorName));
-  if(filteredBook){
-    res.send(JSON.stringify({filteredBook},null,4))
-  }
-  res.status(404).send("Books not found")
+  return new Promise((resolve,reject)=>{
+    if(filteredBook){
+        res.send(JSON.stringify({filteredBook},null,4))
+        resolve("Book sent!").then((message)=>{console.log("Action completed,"+message)})
+    }
+    else{
+        reject("The book you want is not here :(").then((message)=>{console.log("Action failed, "+message)})
+    }
+    })
   
 });
 
